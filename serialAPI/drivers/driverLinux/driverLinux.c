@@ -34,8 +34,32 @@
 
 #if (SBGC_USE_LINUX_DRIVER)
 
-/* ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
- *													Executable Functions
+/* -----------------------------------------------------------------------
+ *                        Receive Buffer for Hex Printing
+ */
+#define RX_PRINT_BUFF_SIZE 512
+
+static ui8 rxPrintBuff[RX_PRINT_BUFF_SIZE];
+static ui16 rxPrintIdx = 0;
+static ui16 rxExpectedLen = 0;
+static ui8 rxState = 0;  /* 0: wait start, 1: got cmd, 2: got len, 3: collecting */
+
+static void PrintRecvBuffer(void)
+{
+	if (rxPrintIdx > 0) {
+		printf("Recv: ");
+		for (ui16 i = 0; i < rxPrintIdx; i++) {
+			printf("%02X ", rxPrintBuff[i]);
+		}
+		printf("\n");
+		rxPrintIdx = 0;
+		rxState = 0;
+		rxExpectedLen = 0;
+	}
+}
+
+/* -----------------------------------------------------------------------
+ *                              Executable Functions
  */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-result"
@@ -178,6 +202,34 @@ ui8 DriverSBGC32_ReceiveByte (void *driver, ui8 *data)
 
 	read(drv->devFD, data, 1);
 
+	/* Accumulate received bytes and print complete message */
+	if (rxPrintIdx < RX_PRINT_BUFF_SIZE) {
+		rxPrintBuff[rxPrintIdx++] = *data;
+	}
+
+	/* State machine for SBGC protocol: 0x24 CMD LEN HCHK DATA[LEN] CRC16 */
+	switch (rxState) {
+		case 0:  /* Wait for start byte 0x24 */
+			if (*data == 0x24) {
+				rxState = 1;
+			} else {
+				rxPrintIdx = 0;  /* Reset if not start byte */
+			}
+			break;
+		case 1:  /* Got start, next is CMD */
+			rxState = 2;
+			break;
+		case 2:  /* Got CMD, next is data length */
+			rxExpectedLen = *data + 4 + 2;  /* start + cmd + len + hchk + data[len] + crc16 */
+			rxState = 3;
+			break;
+		case 3:  /* Collecting data */
+			if (rxPrintIdx >= rxExpectedLen) {
+				PrintRecvBuffer();
+			}
+			break;
+	}
+
 	return SBGC_DRV_RX_BUSY_FLAG;
 }
 
@@ -203,6 +255,6 @@ void DriverSBGC32_PrintDebugData (char *data, ui16 length)
 
 #endif /* SBGC_USE_LINUX_DRIVER */
 
-/* ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ */
-/*                 https://www.basecamelectronics.com                 */
-/* __________________________________________________________________ */
+/* -------------------------------------------------------------------- */
+/*                 https://www.basecamelectronics.com                   */
+/* -------------------------------------------------------------------- */
