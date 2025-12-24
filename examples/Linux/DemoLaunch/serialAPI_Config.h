@@ -79,7 +79,7 @@ extern		"C" {
  */
 #define		SBGC_SYS_BIG_ENDIAN		sbgcOFF			/*!<  Memory organization of target-control device. LITTLE ENDIAN if set off		*/
 #define		SBGC_SEVERAL_DEVICES	sbgcOFF			/*!<  @ref Note1. Using more than one controller with the library					*/
-#define		SBGC_PROTOCOL_VERSION	2				/*!<  V.1 or V.2 SerialAPI protocol version											*/
+#define		SBGC_PROTOCOL_VERSION	2				/*!<  V.1 or V.2 SerialAPI protocol version		v2									*/
 
 #define		SBGC_NON_BLOCKING_MODE	sbgcOFF			/*!<  Provide the library with non-blocking communication							*/
 #if (SBGC_NON_BLOCKING_MODE)

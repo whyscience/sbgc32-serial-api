@@ -300,6 +300,7 @@ void PrintDataStream (void)
 	frameCamAngleTemp = sbgcDegreeToAngle(RealTimeDataCustom.frameCamAngle[YAW]);
 	DebugSBGC32_PrintStructElement(&SBGC32_Device, &frameCamAngleTemp, "Current Angle Yaw =", sbgcSHORT);
 
+	// 转动速度
 	DebugSBGC32_PrintStructElement(&SBGC32_Device, &RealTimeDataCustom.gyroData[ROLL], "Gyro Roll =", sbgcSHORT);
 	DebugSBGC32_PrintStructElement(&SBGC32_Device, &RealTimeDataCustom.gyroData[PITCH], "Gyro Pitch =", sbgcSHORT);
 	DebugSBGC32_PrintStructElement(&SBGC32_Device, &RealTimeDataCustom.gyroData[YAW], "Gyro Yaw =", sbgcSHORT);

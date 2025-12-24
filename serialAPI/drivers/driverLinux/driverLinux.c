@@ -126,6 +126,13 @@ ui8 DriverSBGC32_TransmitData (void *driver, ui8 *data, ui16 size)
 
 	int bytes;
 
+	/* Print transmitted data in hex format */
+	printf("Send: ");
+	for (ui16 i = 0; i < size; i++) {
+		printf("%02X ", data[i]);
+	}
+	printf("\n");
+
 	ioctl(drv->devFD, TIOCOUTQ, &bytes);
 
 	if (((SBGC_DRV_TX_BUFF_TOTAL_SIZE - bytes) < size) || (bytes == -1))
